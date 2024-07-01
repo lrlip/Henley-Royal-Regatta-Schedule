@@ -13,7 +13,7 @@ pip install -r .\requirements.txt
 ## Usage 
 
 ```
-python henley_scheduler.py --crew <search_string1> <search_string2> ... [--gmt <offset>]
+python henley_scheduler.py [--crew <search_string1> <search_string2> ...] [--gmt <offset>]
 ```
 
 ### Arguments
@@ -25,11 +25,11 @@ python henley_scheduler.py --crew <search_string1> <search_string2> ... [--gmt <
 
 Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes.
 ```
-python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt -1
+python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt +1
 ```
 
 
-Example Output
+Example Output:
 ```
 Race Schedule for Tuesday 02 July 2024
 GB time   Local time  Berks station                            Bucks station
@@ -43,6 +43,8 @@ GB time   Local time  Berks station                            Bucks station
 19:35     20:35       635 Oxford Brookes Univ. 'B'             638 Univ. of London 'B'
 ```
 
+
+
 ## Rights
 
-All rights of the schedule belong to the Henley Royal Regatta. Data is fetched from [Henley Royal Regatta Race TimeTable](https://www.hrr.co.uk/2024-competition/race-timetable/)
+All rights to the race schedule data are owned by the Henley Royal Regatta. The data is fetched from the officia [Henley Royal Regatta Race TimeTable](https://www.hrr.co.uk/2024-competition/race-timetable/)
