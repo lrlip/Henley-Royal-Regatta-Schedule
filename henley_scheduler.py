@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
+VALID_GMT_OFFSETS = range(-12, 15)
 
 
 def fetch_race_data(url: str) -> Optional[str]:
@@ -41,10 +42,12 @@ def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
 
 def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: int) -> None:
     logging.debug("Printing race schedule.")
-    print('GB time  ', 'Local Time ', 'Berks station'.ljust(
-        40), 'Bucks station'.ljust(40))
+    print('GB time  ', 'Local Time  ', 'Berks station'.ljust(
+        40), 'Bucks station'.ljust(40), 'Trophy')
 
     for race_element in race_elements:
+        trophy_name = clean_text(race_element.find(
+            'td', class_='timetable-field-trophy'))
         berk_station = clean_text(race_element.find(
             'td', class_='timetable-field-berks'))
         bucks_station = clean_text(race_element.find(
@@ -52,24 +55,31 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
         bucks_berks = berk_station + ', ' + bucks_station
 
         for search_string in search_strings:
-            if search_string.lower() in bucks_berks.lower():
-                time_str = clean_text(race_element.find(
-                    'td', class_='timetable-field-time'))
-                gb_time = time_str[:5]
-                local_time = convert_time_to_local(
-                    gb_time, gmt_offset=gmt_offset)
+            if search_string.lower() not in bucks_berks.lower():
+                continue
 
-                print(gb_time.ljust(9), local_time.ljust(11),
-                      berk_station.ljust(40), bucks_station.ljust(40))
+            time_str = clean_text(race_element.find(
+                'td', class_='timetable-field-time'))
+            gb_time = time_str[:5]
+            local_time = convert_time_to_local(
+                gb_time, gmt_offset=gmt_offset)
+
+            print(gb_time.ljust(9), local_time.ljust(12),
+                  berk_station.ljust(40), bucks_station.ljust(40), trophy_name)
 
 
 def parse_race_date(soup: BeautifulSoup):
     return clean_text(soup.find(class_='d-none d-md-inline'))
 
 
-def main(search_strings: List[str],
-         gmt_offset: int) -> None:
+def main(search_strings: List[str], gmt_offset: int) -> None:
+
+    if gmt_offset not in VALID_GMT_OFFSETS:
+        logging.error("Invalid GMT offset. Must be between -12 and +14.")
+        return
+
     page_content = fetch_race_data(HENLEY_TIMETABLE_URL)
+
     if page_content:
         soup = BeautifulSoup(page_content, "html.parser")
         race_date = parse_race_date(soup)

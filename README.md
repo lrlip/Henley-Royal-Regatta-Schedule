@@ -32,15 +32,14 @@ python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt +1
 Example Output:
 ```
 Race Schedule for Tuesday 02 July 2024
-GB time   Local time  Berks station                            Bucks station
-09:05     10:05       162 Oxford Brookes Univ. 'C'             139 Hampton Sch.
-10:10     11:10       394 Thames R.C. 'B'                      356 City of Oxford R.C.
-10:20     11:20       163 Oxford Brookes Univ. 'D'             130 Durham Univ. 'A'
-11:10     12:10       159 Orange Coast Coll., USA              127 D.S.R. Laga 'B', NED
-12:00     13:00       156 Nottingham Univ.                     161 Oxford Brookes Univ. 'B'
-18:05     19:05       160 Oxford Brookes Univ. 'A'             121 Bedford Sch.
-19:00     20:00       126 D.S.R. Laga 'A', NED                 171 Southampton Univ.
-19:35     20:35       635 Oxford Brookes Univ. 'B'             638 Univ. of London 'B'
+GB time   Local Time  Berks station                            Bucks station                            Trophy
+09:45     10:45       132 Edinburgh Univ. 'A'                  120 A.S.R. Nereus 'B', NED               Temple
+11:10     12:10       159 Orange Coast Coll., USA              127 D.S.R. Laga 'B', NED                 Temple
+14:45     15:45       600 K.A.R.Z.V. 'De Hoop', NED            610 Nottingham R.C.                      Britannia
+14:50     15:50       119 A.S.R. Nereus 'A', NED               133 Edinburgh Univ. 'B'                  Temple
+16:05     17:05       138 G.S.R. Aegir, NED                    175 St. Paul's Sch.                      Temple
+17:35     18:35       181 University of Bristol                147 K.S.R.V. Njord, NED                  Temple
+19:00     20:00       126 D.S.R. Laga 'A', NED                 171 Southampton Univ.                    Temple
 ```
 
 
