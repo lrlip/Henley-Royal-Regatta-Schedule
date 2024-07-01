@@ -11,6 +11,28 @@ logging.basicConfig(level=logging.INFO,
 HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
 VALID_GMT_OFFSETS = range(-12, 15)
 
+TROHPY_BOAT_PAIR = {'Britannia': 'M4+',
+                    'Diamond': 'M1x',
+                    'Diamonds': 'M1x',
+                    'Goblets': 'M2-',
+                    'Hambleden': 'W2-',
+                    'Island': 'W8+',
+                    "Ladies'": 'M8+',
+                    'P. Albert': 'M4+',
+                    'P. Wales': 'M4x',
+                    'P. Royal': 'W1x',
+                    'P.Grace': 'M4x',
+                    'Princess Grace': 'W4x',
+                    'Queen Mother': 'M4x',
+                    'Remenham': 'W8+',
+                    'Stewards': 'M4-',
+                    'Stoner': 'W2x',
+                    'Temple': 'M8+',
+                    'Town': 'W4-',
+                    'Visitors': 'M4-',
+                    'Wyfold': 'M4-'
+                    }
+
 
 def fetch_race_data(url: str) -> Optional[str]:
     logging.debug(f"Fetching race data from {url}")
@@ -48,6 +70,8 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
     for race_element in race_elements:
         trophy_name = clean_text(race_element.find(
             'td', class_='timetable-field-trophy'))
+        trophy_boat = TROHPY_BOAT_PAIR.get(trophy_name, 'Boat Not Found')
+
         berk_station = clean_text(race_element.find(
             'td', class_='timetable-field-berks'))
         bucks_station = clean_text(race_element.find(
@@ -65,7 +89,7 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
                 gb_time, gmt_offset=gmt_offset)
 
             print(gb_time.ljust(9), local_time.ljust(12),
-                  berk_station.ljust(40), bucks_station.ljust(40), trophy_name)
+                  berk_station.ljust(40), bucks_station.ljust(40), f'{trophy_name} - {trophy_boat}')
 
 
 def parse_race_date(soup: BeautifulSoup):
