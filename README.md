@@ -46,4 +46,4 @@ GB time   Local Time  Berks station                            Bucks station    
 
 ## Rights
 
-All rights to the race schedule data are owned by the Henley Royal Regatta. The data is fetched from the officia [Henley Royal Regatta Race TimeTable](https://www.hrr.co.uk/2024-competition/race-timetable/)
+All rights to the race schedule data are owned by the Henley Royal Regatta. The data is fetched from the official [Henley Royal Regatta Race TimeTable](https://www.hrr.co.uk/2024-competition/race-timetable/)
