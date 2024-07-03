@@ -60,7 +60,7 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
     else:
         gmt_offset_str = f'{gmt_offset}'
 
-    headers = ['Race #', Fore.CYAN + 'GB time', f'GMT {gmt_offset_str}', 'Berks station',
+    headers = [Fore.CYAN + 'Race #',  'GB time', f'GMT {gmt_offset_str}', 'Berks station',
                'Bucks station', 'Trophy' + Style.RESET_ALL, 'Boat']
 
     for race_element in race_elements:
@@ -93,7 +93,7 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
                               berk_station, bucks_station, trophy_name])
 
     if table:
-        print(tabulate(table, headers=headers, tablefmt='simpel'))
+        print(tabulate(table, headers=headers, tablefmt='github'))
     else:
         print("No matching races found.")
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
         description='Fetch and display race timetable.')
     parser.add_argument('--crew', type=str, nargs='+', default='NED', required=False,
                         help='List of Strings that should be matched, separated by a space')
-    parser.add_argument('--gmt', type=int, default=14, required=False,
+    parser.add_argument('--gmt', type=int, default=1, required=False,
                         help='GMT offset for local time display (default: 1 for NL time)')
     args = parser.parse_args()
     main(args.crew, args.gmt)
