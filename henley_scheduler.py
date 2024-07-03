@@ -55,7 +55,12 @@ def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
 def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: int) -> None:
     logging.debug("Printing race schedule.")
     table = []
-    headers = ['Race #', Fore.CYAN + 'GB time', 'Local Time', 'Berks station',
+    if int(gmt_offset) > 0:
+        gmt_offset_str = f'+{gmt_offset}'
+    else:
+        gmt_offset_str = f'{gmt_offset}'
+
+    headers = ['Race #', Fore.CYAN + 'GB time', f'GMT {gmt_offset_str}', 'Berks station',
                'Bucks station', 'Trophy' + Style.RESET_ALL, 'Boat']
 
     for race_element in race_elements:
@@ -131,7 +136,7 @@ if __name__ == "__main__":
         description='Fetch and display race timetable.')
     parser.add_argument('--crew', type=str, nargs='+', default='NED', required=False,
                         help='List of Strings that should be matched, separated by a space')
-    parser.add_argument('--gmt', type=int, default=1, required=False,
+    parser.add_argument('--gmt', type=int, default=14, required=False,
                         help='GMT offset for local time display (default: 1 for NL time)')
     args = parser.parse_args()
     main(args.crew, args.gmt)

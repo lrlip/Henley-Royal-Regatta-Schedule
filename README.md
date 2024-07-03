@@ -23,9 +23,9 @@ python henley_scheduler.py [--crew <search_string1> <search_string2> ...] [--gmt
 
 
 
-Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes.
+Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes in Housten, USA
 ```
-python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt +1
+python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt -6
 ```
 
 
