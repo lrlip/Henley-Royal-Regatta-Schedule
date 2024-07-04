@@ -23,23 +23,33 @@ python henley_scheduler.py [--crew <search_string1> <search_string2> ...] [--gmt
 
 
 
-Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes.
+Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes in Housten, USA
 ```
-python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt +1
+python henley_scheduler.py --crew NED 123 'Oxford brookes' --gmt -6
 ```
 
 
 Example Output:
 ```
-Race Schedule for Tuesday 02 July 2024
-GB time   Local Time  Berks station                            Bucks station                            Trophy
-09:45     10:45       132 Edinburgh Univ. 'A'                  120 A.S.R. Nereus 'B', NED               Temple
-11:10     12:10       159 Orange Coast Coll., USA              127 D.S.R. Laga 'B', NED                 Temple
-14:45     15:45       600 K.A.R.Z.V. 'De Hoop', NED            610 Nottingham R.C.                      Britannia
-14:50     15:50       119 A.S.R. Nereus 'A', NED               133 Edinburgh Univ. 'B'                  Temple
-16:05     17:05       138 G.S.R. Aegir, NED                    175 St. Paul's Sch.                      Temple
-17:35     18:35       181 University of Bristol                147 K.S.R.V. Njord, NED                  Temple
-19:00     20:00       126 D.S.R. Laga 'A', NED                 171 Southampton Univ.                    Temple
+Race Schedule for Wednesday 03 July 2024
+----------------------------------------
+  Race #  GB time    Local Time    Berks station                            Bucks station                             Trophy
+--------  ---------  ------------  ---------------------------------------  ----------------------------------------  --------
+      15  09:50      10:50         438 Ever Green B.C., USA                 433 A.A.S.R. Skøll, NED                   P. Wales
+      17  10:05      11:05         127 D.S.R. Laga 'B', NED                 161 Oxford Brookes Univ. 'B'              Temple
+      22  10:35      11:35         348 Univ. California, Berkeley 'B', USA  328 A.R.S.R. Skadi & D.S.R. Laga, NED     Visitors
+      33  11:40      12:40         119 A.S.R. Nereus 'A', NED               138 G.S.R. Aegir, NED                     Temple
+      35  11:50      12:50         723 S.N.B. Cox, ZIM                      718 J. Bakker, NED                        Diamonds
+      40  12:20      13:20         456 T.S.S. & Proteus-Eretes, NED         445 Ormsund R.K. & Christiania R.K., NOR  P. Wales
+      41  14:00      15:00         733 D. Junge, GER                        735 L. Kreiter, NED                       Diamonds
+      46  14:30      15:30         162 Oxford Brookes Univ. 'C'             120 A.S.R. Nereus 'B', NED                Temple
+      51  15:00      16:00         61 Nonesuch B.C.                         47 K.A.R.Z.V. 'De Hoop', NED              Thames
+      59  15:45      16:45         734 L. Keijzer, NED                      752 R. Spelman, IRL                       Diamonds
+      63  16:10      17:10         204 G.S.R. Aegir, NED                    195 Drexel Univ., USA                     Island
+      70  17:50      18:50         725 J.D. Free, AUS                       746 B.A.G. Poll, NED                      Diamonds
+      75  18:20      19:20         126 D.S.R. Laga 'A', NED                 181 University of Bristol                 Temple
+      80  18:50      19:50         453 R.G. Hansa Hamburg & R.V. Kappeln    459 U.S.R. Triton, NED                    P. Wales
+      83  19:10      20:10         339 Nottingham & Union & Oxford Univ.    344 Okeanos & Vidar, NED                  Visitors
 ```
 
 
