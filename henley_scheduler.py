@@ -35,6 +35,7 @@ TROHPY_BOAT_PAIR = {'Britannia': 'M4+',
                     'Wyfold': 'M4-'
                     }
 
+
 def fetch_race_data(url: str) -> Optional[str]:
     logging.debug(f"Fetching race data from {url}")
     try:
@@ -53,16 +54,14 @@ def parse_race_data(soup) -> List[BeautifulSoup]:
 
 
 def convert_time_to_local(gb_time: str, gmt_offset: int) -> List[str]:
+    gb_hour = int(gb_time.split(':')[0])
+    gb_minutes = gb_time.split(':')[1]
+    if gb_hour < 8:
+        gb_hour += 12
 
-    if int(gb_time[:2]) < 8:
-        gb_hours = int(gb_time[:2]) + 12
-    else:
-        gb_hours = int(gb_time[:2])
-    gb_time_hour = gb_hours
+    local_time_hour = (gb_hour + gmt_offset) % 24
 
-    local_time_hour = (gb_hours + gmt_offset) % 24
-
-    return [f'{gb_time_hour:02d}{gb_time[2:5]}', f'{local_time_hour:02d}{gb_time[2:5]}']
+    return [f"{gb_hour:02d}:{gb_minutes}", f"{local_time_hour:02d}:{gb_minutes}"]
 
 
 def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
@@ -117,8 +116,8 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
     else:
         print("No matching races found.")
 
-=            print(gb_time.ljust(9), local_time.ljust(12),
-                  berk_station.ljust(40), bucks_station.ljust(40), f'{trophy_name} - {trophy_boat}')
+        print(gb_time.ljust(9), local_time.ljust(12),
+              berk_station.ljust(40), bucks_station.ljust(40), f'{trophy_name} - {trophy_boat}')
     print()
     print(Fore.BLUE + "Go to Youtube: https://www.youtube.com/results?search_query=Henley+royal+regatta+live" + Style.RESET_ALL)
 
