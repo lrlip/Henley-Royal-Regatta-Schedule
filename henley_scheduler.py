@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import argparse
 import logging
 from typing import List, Dict, Optional
+from ics import Calendar, Event
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -62,6 +63,20 @@ def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
     return element.text.replace('\n', '').strip() if element else default
 
 
+def create_ics_event(calendar: Calendar,
+                     race_date: str,
+                     local_time: str,
+                     berk_station: str,
+                     bucks_station: str,
+                     trophy_name: str,
+                     trophy_boat: str):
+    event = Event()
+    event.name = f'{trophy_name} - {trophy_boat}'
+    event.begin = f'{race_date} {local_time}:00'
+    event.description = f'Race between {berk_station} and {bucks_station}'
+    calendar.events.add(event)
+
+
 def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: int) -> None:
     logging.debug("Printing race schedule.")
     print('GB time  ', 'Local Time  ', 'Berks station'.ljust(
@@ -91,6 +106,13 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
             print(gb_time.ljust(9), local_time.ljust(12),
                   berk_station.ljust(40), bucks_station.ljust(40), f'{trophy_name} - {trophy_boat}')
 
+            calendar = Calendar()
+            create_ics_event(calendar,
+                             '2024-02-07', local_time,
+                             berk_station, bucks_station, trophy_name, trophy_boat)
+        with open('race_schedule.ics', 'w') as f:
+            f.writelines(calendar)
+
 
 def parse_race_date(soup: BeautifulSoup):
     return clean_text(soup.find(class_='d-none d-md-inline'))
@@ -113,6 +135,7 @@ def main(search_strings: List[str], gmt_offset: int) -> None:
             print_race_schedule(race_elements=race_elements,
                                 search_strings=search_strings,
                                 gmt_offset=gmt_offset)
+
         else:
             logging.warning("No race elements found.")
     else:
