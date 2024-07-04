@@ -14,8 +14,8 @@ HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
 VALID_GMT_OFFSETS = range(-12, 15)
 
 TROHPY_BOAT_PAIR = {'Britannia': 'M4+',
-                    'Diamond': 'M1x',
                     'Diamonds': 'M1x',
+                    'Doubles': 'M2x',
                     'Goblets': 'M2-',
                     'Hambleden': 'W2-',
                     'Island': 'W8+',
@@ -23,13 +23,15 @@ TROHPY_BOAT_PAIR = {'Britannia': 'M4+',
                     'P. Albert': 'M4+',
                     'P. Wales': 'M4x',
                     'P. Royal': 'W1x',
-                    'P.Grace': 'M4x',
+                    'P. Grace': 'M4x',
+                    'PRCC': 'W1x',
                     'Princess Grace': 'W4x',
                     'Queen Mother': 'M4x',
                     'Remenham': 'W8+',
                     'Stewards': 'M4-',
                     'Stoner': 'W2x',
                     'Temple': 'M8+',
+                    'Thames': 'M8+',
                     'Town': 'W4-',
                     'Visitors': 'M4-',
                     'Wyfold': 'M4-'
@@ -78,7 +80,7 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
         gmt_offset_str = f'{gmt_offset}'
 
     headers = [Fore.CYAN + 'Race #',  'GB time', f'GMT {gmt_offset_str}', 'Berks station',
-               'Bucks station', 'Trophy' + Style.RESET_ALL, 'Boat']
+               'Bucks station', 'Trophy', 'Boat' + Style.RESET_ALL]
 
     for race_element in race_elements:
         race_number = clean_text(race_element.find(
@@ -109,15 +111,13 @@ def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: in
 
                 table.append([race_number, Fore.YELLOW + gb_time_upd + Style.RESET_ALL,
                               Fore.GREEN + local_time + Style.RESET_ALL,
-                              berk_station, bucks_station, trophy_name])
+                              berk_station, bucks_station, trophy_name, trophy_boat])
 
     if table:
         print(tabulate(table, headers=headers, tablefmt='github'))
     else:
         print("No matching races found.")
 
-        print(gb_time.ljust(9), local_time.ljust(12),
-              berk_station.ljust(40), bucks_station.ljust(40), f'{trophy_name} - {trophy_boat}')
     print()
     print(Fore.BLUE + "Go to Youtube: https://www.youtube.com/results?search_query=Henley+royal+regatta+live" + Style.RESET_ALL)
 
