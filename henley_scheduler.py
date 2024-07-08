@@ -1,3 +1,4 @@
+import stat
 import requests
 from bs4 import BeautifulSoup
 import argparse
@@ -5,6 +6,7 @@ import logging
 from typing import List, Dict, Optional
 from tabulate import tabulate
 from colorama import Fore, Style, init
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -13,151 +15,140 @@ logging.basicConfig(level=logging.INFO,
 HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
 VALID_GMT_OFFSETS = range(-12, 15)
 
-TROHPY_BOAT_PAIR = {'Britannia': 'M4+',
-                    'Diamonds': 'M1x',
-                    'Doubles': 'M2x',
-                    'Goblets': 'M2-',
-                    'Hambleden': 'W2-',
-                    'Island': 'W8+',
-                    "Ladies'": 'M8+',
-                    'P. Albert': 'M4+',
-                    'P. Wales': 'M4x',
-                    'P. Royal': 'W1x',
-                    'P. Grace': 'M4x',
-                    'PRCC': 'W1x',
-                    'Princess Grace': 'W4x',
-                    'Queen Mother': 'M4x',
-                    'Remenham': 'W8+',
-                    'Stewards': 'M4-',
-                    'Stoner': 'W2x',
-                    'Temple': 'M8+',
-                    'Thames': 'M8+',
-                    'Town': 'W4-',
-                    'Visitors': 'M4-',
-                    'Wyfold': 'M4-'
-                    }
 
+class HenleySchedule():
+    def __init__(self,
+                 crew: List[str],
+                 gmt_offset: int):
+        self.crew = crew
+        self.gmt_offset = gmt_offset
 
-def fetch_race_data(url: str) -> Optional[str]:
-    logging.debug(f"Fetching race data from {url}")
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        logging.debug("Successfully fetched race data.")
-        return response.content
-    except requests.RequestException as e:
-        logging.error(f"Error fetching race data: {e}")
-        return None
+        self._validate_gmt_offset()
+        self.url = HENLEY_TIMETABLE_URL
+        self.trophy_boat_pair = self.load_trophy_boat_pair(
+            'trohpy_boat_pair.json')
 
+    def load_trophy_boat_pair(self, file_path: str) -> dict:
+        with open(file_path, 'r') as file:
+            return json.load(file)
 
-def parse_race_data(soup) -> List[BeautifulSoup]:
-    logging.debug("Parsing race data.")
-    return soup.find_all('tr', {"class": 'timetable-row-r'})
+    def show_race_schedule(self):
+        soup = self.get_site_content()
 
+        if soup is None:
+            return
 
-def convert_time_to_local(gb_time: str, gmt_offset: int) -> List[str]:
-    gb_hour = int(gb_time.split(':')[0])
-    gb_minutes = gb_time.split(':')[1]
-    if gb_hour < 8:
-        gb_hour += 12
-
-    local_time_hour = (gb_hour + gmt_offset) % 24
-
-    return [f"{gb_hour:02d}:{gb_minutes}", f"{local_time_hour:02d}:{gb_minutes}"]
-
-
-def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
-    """Extracts and cleans text from a BeautifulSoup element."""
-    return element.text.replace('\n', '').strip() if element else default
-
-
-def print_race_schedule(race_elements, search_strings: List[str], gmt_offset: int) -> None:
-    logging.debug("Printing race schedule.")
-    table = []
-    if int(gmt_offset) > 0:
-        gmt_offset_str = f'+{gmt_offset}'
-    else:
-        gmt_offset_str = f'{gmt_offset}'
-
-    headers = [Fore.CYAN + 'Race #',  'GB time', f'GMT {gmt_offset_str}', 'Berks station',
-               'Bucks station', 'Trophy', 'Boat' + Style.RESET_ALL]
-
-    for race_element in race_elements:
-        race_number = clean_text(race_element.find(
-            'td', class_='timetable-field-race'))
-        trophy_name = clean_text(race_element.find(
-            'td', class_='timetable-field-trophy'))
-        trophy_boat = TROHPY_BOAT_PAIR.get(trophy_name, 'Boat Not Found')
-
-        berk_station = clean_text(race_element.find(
-            'td', class_='timetable-field-berks'))
-        bucks_station = clean_text(race_element.find(
-            'td', class_='timetable-field-bucks'))
-        bucks_berks = berk_station + ', ' + bucks_station
-
-        for search_string in search_strings:
-            if search_string.lower() in bucks_berks.lower():
-                # Make the matching crews bold
-                if search_string.lower() in berk_station.lower():
-                    berk_station = Style.BRIGHT + berk_station + Style.NORMAL
-                if search_string.lower() in bucks_station.lower():
-                    bucks_station = Style.BRIGHT + bucks_station + Style.NORMAL
-
-                time_str = clean_text(race_element.find(
-                    'td', class_='timetable-field-time'))
-                gb_time = time_str[:5]
-                gb_time_upd, local_time = convert_time_to_local(
-                    gb_time, gmt_offset=gmt_offset)
-
-                table.append([race_number, Fore.YELLOW + gb_time_upd + Style.RESET_ALL,
-                              Fore.GREEN + local_time + Style.RESET_ALL,
-                              berk_station, bucks_station, trophy_name, trophy_boat])
-
-    if table:
-        print(tabulate(table, headers=headers, tablefmt='github'))
-    else:
-        print("No matching races found.")
-
-    print()
-    print(Fore.BLUE + "Go to Youtube: https://www.youtube.com/results?search_query=Henley+royal+regatta+live" + Style.RESET_ALL)
-
-
-def parse_race_date(soup: BeautifulSoup):
-    return clean_text(soup.find(class_='d-none d-md-inline'))
-
-
-def main(search_strings: List[str], gmt_offset: int) -> None:
-
-    if gmt_offset not in VALID_GMT_OFFSETS:
-        logging.error("Invalid GMT offset. Must be between -12 and +14.")
-        return
-
-    page_content = fetch_race_data(HENLEY_TIMETABLE_URL)
-
-    if page_content:
-        soup = BeautifulSoup(page_content, "html.parser")
-        race_date = parse_race_date(soup)
+        race_date = self.clean_text(soup.find(class_='d-none d-md-inline'))
         header = f'Race Schedule for {race_date}'
         separator = '-' * len(header)
         print(Fore.BLUE + Style.BRIGHT + header + Style.RESET_ALL)
         print(Fore.BLUE + Style.BRIGHT + separator + Style.RESET_ALL)
-        race_elements = parse_race_data(soup)
+
+        race_elements = self._get_time_table_rows(soup)
         if race_elements:
-            print_race_schedule(race_elements=race_elements,
-                                search_strings=search_strings,
-                                gmt_offset=gmt_offset)
+            self.print_race_schedule(race_elements=race_elements)
         else:
             logging.warning("No race elements found.")
-    else:
-        logging.error("Failed to retrieve or parse the race data.")
+        pass
 
+    def get_site_content(self) -> BeautifulSoup | None:
+        try:
+            response = requests.get(self.url)
+            response.raise_for_status()
+            return BeautifulSoup(response.content, "html.parser")
+        except requests.RequestException as e:
+            logging.error(f"Error fetching race data: {e}")
+            return None
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='Fetch and display race timetable.')
-    parser.add_argument('--crew', type=str, nargs='+', default='NED', required=False,
-                        help='List of Strings that should be matched, separated by a space')
-    parser.add_argument('--gmt', type=int, default=1, required=False,
-                        help='GMT offset for local time display (default: 1 for NL time)')
-    args = parser.parse_args()
-    main(args.crew, args.gmt)
+    def gmt_offset_header(self) -> str:
+        if int(self.gmt_offset) > 0:
+            gmt_offset_str = f'+{self.gmt_offset}'
+        else:
+            gmt_offset_str = f'{self.gmt_offset}'
+        return gmt_offset_str
+
+    def print_race_schedule(self, race_elements) -> None:
+        logging.debug("Printing race schedule.")
+        table = []
+
+        gmt_offset_str = self.gmt_offset_header()
+        headers = [Fore.CYAN + 'Race #',  'GB time', f'GMT {gmt_offset_str}', 'Berks station',
+                   'Bucks station', 'Trophy', 'Boat' + Style.RESET_ALL]
+
+        for race_element in race_elements:
+            race_number = self._find_table_element(
+                race_element, 'timetable-field-race')
+            race_time = self._find_table_element(
+                race_element, 'timetable-field-time')
+            trophy_name = self._find_table_element(
+                race_element, 'timetable-field-trophy')
+            berk_station = self._find_table_element(
+                race_element, 'timetable-field-berks')
+            bucks_station = self._find_table_element(
+                race_element, 'timetable-field-bucks')
+
+            trophy_boat = self.trophy_boat_pair.get(
+                trophy_name, 'Boat Not Found')
+
+            for search_string in self.crew:
+                show_race = False
+                # Make the matching crews bold
+                if search_string.lower() in berk_station.lower():
+                    berk_station = Style.BRIGHT + berk_station + Style.NORMAL
+                    show_race = True
+                if search_string.lower() in bucks_station.lower():
+                    bucks_station = Style.BRIGHT + bucks_station + Style.NORMAL
+                    show_race = True
+
+                if show_race:
+                    gb_time = race_time[:5]
+                    gb_time_upd, local_time = self._convert_time_str_to_local_time_str(
+                        gb_time)
+
+                    table.append([race_number, Fore.YELLOW + gb_time_upd + Style.RESET_ALL,
+                                  Fore.GREEN + local_time + Style.RESET_ALL,
+                                  berk_station, bucks_station, trophy_name, trophy_boat])
+
+        if table:
+            print(tabulate(table, headers=headers, tablefmt='github'))
+        else:
+            print("No matching races found.")
+
+        print()
+        print(Fore.BLUE + "Go to Youtube: https://www.youtube.com/results?search_query=Henley+royal+regatta+live" + Style.RESET_ALL)
+
+    def _convert_time_str_to_local_time_str(self, time_string):
+        """Function that convert a time str '12:03' to a local timestring based on the given offset
+        """
+        hour_str = int(time_string.split(':')[0])
+        minutes_str = time_string.split(':')[1]
+        if hour_str < 8:
+            hour_str += 12
+
+        local_time_hour = (hour_str + self.gmt_offset) % 24
+
+        return [f"{hour_str:02d}:{minutes_str}", f"{local_time_hour:02d}:{minutes_str}"]
+
+    def _convert_pm_time_to_24_hours_time(self, time_string):
+        """Function that convert a PM timestring '02:00' to '14:00'
+
+        Args:
+            time_string (_type_): _description_
+        """
+        pass
+
+    def _find_table_element(self, table_row, class_element: str) -> str:
+        return self.clean_text(table_row.find('td', class_=class_element))
+
+    @staticmethod
+    def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
+        """Extracts and cleans text from a BeautifulSoup element."""
+        return element.text.replace('\n', '').strip() if element else default
+
+    @staticmethod
+    def _get_time_table_rows(soup: BeautifulSoup) -> List[BeautifulSoup]:
+        return soup.find_all('tr', {"class": 'timetable-row-r'})
+
+    def _validate_gmt_offset(self):
+        if self.gmt_offset not in VALID_GMT_OFFSETS:
+            logging.error("Invalid GMT offset. Must be between -12 and +14.")
