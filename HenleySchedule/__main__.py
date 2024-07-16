@@ -1,7 +1,7 @@
 import argparse
 from typing import List
 
-from henley_scheduler import HenleySchedule
+from HenleySchedule.henley_scheduler import HenleySchedule
 
 
 def main(search_strings: List[str], gmt_offset: int) -> None:

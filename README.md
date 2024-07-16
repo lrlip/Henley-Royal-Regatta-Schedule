@@ -7,14 +7,15 @@ This script fetches and displays the race timetable for the Henley Royal Regatta
 ```
 pyton -m venv .venv
 .\.venv\Script\activate
-pip install -r .\requirements.txt
+pip install . -r requirements.txt
 ```
 
 ## Usage 
 
 ```
-python main.py [--crew <search_string1> <search_string2> ...] [--gmt <offset>]
+python -m henleySchedule [--crew <search_string1> <search_string2> ...] [--gmt <offset>]
 ```
+When there is no race schedule on the Henley Site, you have to wait for the next edition.
 
 ### Arguments
 - `--crew`: List of substring that should be matched with the name of the crews. Can be country code (_NED_) for Non-UK contenders, the number of the crew (_123_) or every crew from one particular club (_'Thames R.C.'_ or _Brookes_) separated by spaces (capital insensitive)
@@ -25,7 +26,7 @@ python main.py [--crew <search_string1> <search_string2> ...] [--gmt <offset>]
 
 Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes in Housten, USA
 ```
-python main.py --crew NED 123 'Oxford brookes' --gmt -6
+python -m henleySchedule --crew NED 123 'Oxford brookes' --gmt -6
 ```
 
 

@@ -1,11 +1,9 @@
-import stat
 import requests
 from bs4 import BeautifulSoup
-import argparse
 import logging
-from typing import List, Dict, Optional
+from typing import List, Optional
 from tabulate import tabulate
-from colorama import Fore, Style, init
+from colorama import Fore, Style
 import json
 
 # Configure logging
@@ -26,7 +24,7 @@ class HenleySchedule():
         self._validate_gmt_offset()
         self.url = HENLEY_TIMETABLE_URL
         self.trophy_boat_pair = self.load_trophy_boat_pair(
-            'trohpy_boat_pair.json')
+            'HenleySchedule/static/trohpy_boat_pair.json')
 
     def load_trophy_boat_pair(self, file_path: str) -> dict:
         with open(file_path, 'r') as file:
