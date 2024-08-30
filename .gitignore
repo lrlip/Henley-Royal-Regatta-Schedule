@@ -1,2 +1,5 @@
 /.venv
 /.vscode
+*.pyc
+/henelySchedule.egg-info
+/build
