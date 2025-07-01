@@ -12,7 +12,11 @@ setup(
         "requests",
         "beautifulsoup4",
         "tabulate",
-        "colorama"
+        "colorama",
+        "rich",
+        "appdirs",
+        "pytz",
+        "pyyaml"
     ],
     python_requires=">=3.10.0",
     description="""This script fetches and displays the race timetable for the Henley Royal Regatta.

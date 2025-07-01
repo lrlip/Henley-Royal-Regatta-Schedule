@@ -2,3 +2,7 @@ requests
 beautifulsoup4
 tabulate
 colorama
+rich
+appdirs
+pytz
+pyyaml
