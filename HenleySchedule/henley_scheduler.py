@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Ensure UTF-8 encoding for the entire application
+os.environ["PYTHONIOENCODING"] = "utf-8"
+
 import requests
 from bs4 import BeautifulSoup
 import logging
@@ -16,13 +22,28 @@ from rich.panel import Panel
 import yaml
 import appdirs
 
+
 # Configure logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
 VALID_GMT_OFFSETS = range(-12, 15)
-console = Console()
+# Near line 26, update the console initialization
+import sys
+
+# Ensure UTF-8 encoding for stdout
+if sys.platform == 'win32':
+    # For Windows systems
+    import codecs
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        # Fallback for older Python versions
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
+
+# Initialize Rich console with UTF-8 support
+console = Console(highlight=False, emoji=True, force_terminal=True, legacy_windows=False)
 
 # Config and cache directories
 APP_NAME = "HenleySchedule"
@@ -63,20 +84,20 @@ class HenleySchedule():
 
     def load_trophy_boat_pair(self, file_path: str) -> dict:
         try:
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 return json.load(file)
         except FileNotFoundError:
             # Look for the file in the installed package
             package_dir = os.path.dirname(os.path.abspath(__file__))
             alt_path = os.path.join(package_dir, 'static', 'trohpy_boat_pair.json')
-            with open(alt_path, 'r') as file:
+            with open(alt_path, 'r', encoding='utf-8') as file:
                 return json.load(file)
 
     def _load_config(self):
         """Load user configuration if it exists"""
         if os.path.exists(CONFIG_FILE):
             try:
-                with open(CONFIG_FILE, 'r') as f:
+                with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
                     config = yaml.safe_load(f)
                     
                 # Only load config values if they're not already set
@@ -103,8 +124,8 @@ class HenleySchedule():
         }
         
         try:
-            with open(CONFIG_FILE, 'w') as f:
-                yaml.dump(config, f)
+            with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+                yaml.dump(config, f, allow_unicode=True)
             console.print(f"[green]Configuration saved to {CONFIG_FILE}[/green]")
         except Exception as e:
             console.print(f"[red]Error saving configuration: {e}[/red]")
@@ -115,7 +136,7 @@ class HenleySchedule():
             return None
             
         try:
-            with open(CACHE_FILE, 'r') as f:
+            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
                 cache = json.load(f)
                 
             # Check if cache is expired
@@ -137,8 +158,8 @@ class HenleySchedule():
         }
         
         try:
-            with open(CACHE_FILE, 'w') as f:
-                json.dump(cache, f)
+            with open(CACHE_FILE, 'w', encoding='utf-8') as f:
+                json.dump(cache, f, ensure_ascii=False)
             logging.info(f"Data cached to {CACHE_FILE}")
         except Exception as e:
             logging.error(f"Error saving cache: {e}")
@@ -227,16 +248,27 @@ class HenleySchedule():
             berks_highlighted = race['berks_station']
             bucks_highlighted = race['bucks_station']
             
+            # Apply special formatting for NED and D.S.R. Laga
+            if "NED" in berks_highlighted:
+                berks_highlighted = berks_highlighted.replace("NED", "[#FFA500]NED[/#FFA500]")
+            if "NED" in bucks_highlighted:
+                bucks_highlighted = bucks_highlighted.replace("NED", "[#FFA500]NED[/#FFA500]")
+                
+            if "D.S.R. Laga" in berks_highlighted:
+                berks_highlighted = berks_highlighted.replace("D.S.R. Laga", "[red]D.S.R. Laga[/red]")
+            if "D.S.R. Laga" in bucks_highlighted:
+                bucks_highlighted = bucks_highlighted.replace("D.S.R. Laga", "[red]D.S.R. Laga[/red]")
+            
             # If no crew filter, show all races
             if not self.crew:
                 show_race = True
             else:
                 for search_string in self.crew:
                     if search_string.lower() in race['berks_station'].lower():
-                        berks_highlighted = f"[bold]{race['berks_station']}[/bold]"
+                        berks_highlighted = f"[bold]{berks_highlighted}[/bold]"
                         show_race = True
                     if search_string.lower() in race['bucks_station'].lower():
-                        bucks_highlighted = f"[bold]{race['bucks_station']}[/bold]"
+                        bucks_highlighted = f"[bold]{bucks_highlighted}[/bold]"
                         show_race = True
             
             if show_race:
@@ -254,7 +286,7 @@ class HenleySchedule():
             
         table = Table(show_header=True, header_style="bold cyan")
         table.add_column("Race #")
-        table.add_column("GB time", style="yellow")
+        table.add_column("GB time")
         table.add_column(f"GMT {self.gmt_offset_header()}", style="green")
         table.add_column("Berks station")
         table.add_column("Bucks station")
@@ -281,7 +313,9 @@ class HenleySchedule():
         try:
             response = requests.get(self.url)
             response.raise_for_status()
-            return BeautifulSoup(response.content, "html.parser")
+            # Explicitly set encoding to utf-8
+            response.encoding = 'utf-8'
+            return BeautifulSoup(response.content, "html.parser", from_encoding='utf-8')
         except requests.RequestException as e:
             console.print(f"[red]Error fetching race data: {e}[/red]")
             return None
@@ -310,8 +344,15 @@ class HenleySchedule():
 
     @staticmethod
     def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
-        """Extracts and cleans text from a BeautifulSoup element."""
-        return element.text.replace('\n', '').strip() if element else default
+        """Extracts and cleans text from a BeautifulSoup element with UTF-8 support."""
+        if not element:
+            return default
+        try:
+            # Try to get the text with proper UTF-8 encoding
+            return element.get_text().replace('\n', '').strip()
+        except UnicodeEncodeError:
+            # Fallback for encoding issues
+            return element.get_text(strip=True, separator=' ')
 
     @staticmethod
     def _get_time_table_rows(soup: BeautifulSoup) -> List[BeautifulSoup]:
