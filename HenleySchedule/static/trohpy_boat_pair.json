@@ -1,6 +1,7 @@
 {
   "Britannia": "M4+",
   "Diamonds": "M1x",
+  "D Sculls": "M2x",
   "Doubles": "M2x",
   "Fawley": "JM2x",
   "Goblets": "M2-",
@@ -16,6 +17,7 @@
   "PRCC": "W1x",
   "Princess Grace": "W4x",
   "Queen Mother": "M4x",
+  "Q Mother": "M4x",
   "Remenham": "W8+",
   "Stewards": "M4-",
   "Stonor": "W2x",
@@ -24,5 +26,6 @@
   "Town": "W4-",
   "Visitors": "M4-",
   "Wargrave": "W8+",
-  "Wyfold": "M4-"
+  "Wyfold": "M4-",
+  "Grand": "M8+"
 }

@@ -29,53 +29,22 @@ logging.basicConfig(level=logging.INFO,
 
 HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
 VALID_GMT_OFFSETS = range(-12, 15)
-# Near line 26, update the console initialization
-import sys
-
-# Ensure UTF-8 encoding for stdout
-if sys.platform == 'win32':
-    # For Windows systems
-    import codecs
-    try:
-        sys.stdout.reconfigure(encoding='utf-8')
-    except AttributeError:
-        # Fallback for older Python versions
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
 
 # Initialize Rich console with UTF-8 support
 console = Console(highlight=False, emoji=True, force_terminal=True, legacy_windows=False)
 
-# Config and cache directories
 APP_NAME = "HenleySchedule"
-CONFIG_DIR = appdirs.user_config_dir(APP_NAME)
-CACHE_DIR = appdirs.user_cache_dir(APP_NAME)
-CONFIG_FILE = os.path.join(CONFIG_DIR, "config.yaml")
-CACHE_FILE = os.path.join(CACHE_DIR, "cache.json")
-CACHE_EXPIRY = 3600  # Cache expiry in seconds (1 hour)
-
-
 class HenleySchedule():
     def __init__(self,
                  crew: List[str] = None,
                  gmt_offset: int = 1,
                  boat_type: str = None,
-                 trophy: str = None,
-                 offline: bool = False,
-                 notify: bool = False,
-                 save_config: bool = False):
+                 trophy: str = None):
         
         self.crew = crew if crew else []
         self.gmt_offset = gmt_offset
         self.boat_type = boat_type
-        self.trophy = trophy
-
-        # Initialize config and cache directories
-        os.makedirs(CONFIG_DIR, exist_ok=True)
-        os.makedirs(CACHE_DIR, exist_ok=True)
-
-        # Load user config if exists
-        self._load_config()
-        
+        self.trophy = trophy       
 
         self._validate_gmt_offset()
         self.url = HENLEY_TIMETABLE_URL
@@ -93,76 +62,6 @@ class HenleySchedule():
             with open(alt_path, 'r', encoding='utf-8') as file:
                 return json.load(file)
 
-    def _load_config(self):
-        """Load user configuration if it exists"""
-        if os.path.exists(CONFIG_FILE):
-            try:
-                with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-                    config = yaml.safe_load(f)
-                    
-                # Only load config values if they're not already set
-                if not self.crew and 'default_crews' in config:
-                    self.crew = config['default_crews']
-                if self.gmt_offset == 1 and 'gmt_offset' in config:
-                    self.gmt_offset = config['gmt_offset']
-                if not self.boat_type and 'default_boat_type' in config:
-                    self.boat_type = config['default_boat_type']
-                if not self.trophy and 'default_trophy' in config:
-                    self.trophy = config['default_trophy']
-                    
-                logging.info(f"Loaded configuration from {CONFIG_FILE}")
-            except Exception as e:
-                logging.error(f"Error loading config: {e}")
-
-    def _save_config(self):
-        """Save current settings as default configuration"""
-        config = {
-            'default_crews': self.crew,
-            'gmt_offset': self.gmt_offset,
-            'default_boat_type': self.boat_type,
-            'default_trophy': self.trophy
-        }
-        
-        try:
-            with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-                yaml.dump(config, f, allow_unicode=True)
-            console.print(f"[green]Configuration saved to {CONFIG_FILE}[/green]")
-        except Exception as e:
-            console.print(f"[red]Error saving configuration: {e}[/red]")
-
-    def _load_cache(self) -> Optional[Dict[str, Any]]:
-        """Load cached race data if it exists and is not expired"""
-        if not os.path.exists(CACHE_FILE):
-            return None
-            
-        try:
-            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
-                cache = json.load(f)
-                
-            # Check if cache is expired
-            cache_time = cache.get('timestamp', 0)
-            if time.time() - cache_time > CACHE_EXPIRY:
-                logging.info("Cache expired, will fetch fresh data")
-                return None
-                
-            return cache.get('data')
-        except Exception as e:
-            logging.error(f"Error loading cache: {e}")
-            return None
-
-    def _save_cache(self, data: Dict[str, Any]):
-        """Save race data to cache"""
-        cache = {
-            'timestamp': time.time(),
-            'data': data
-        }
-        
-        try:
-            with open(CACHE_FILE, 'w', encoding='utf-8') as f:
-                json.dump(cache, f, ensure_ascii=False)
-            logging.info(f"Data cached to {CACHE_FILE}")
-        except Exception as e:
-            logging.error(f"Error saving cache: {e}")
 
     def show_race_schedule(self):            
        # Fetch fresh data with a progress spinner
@@ -189,7 +88,6 @@ class HenleySchedule():
         if race_elements:
             # Extract and save data
             races_data = self._extract_races_data(race_elements)
-            self._save_cache(races_data)
             
             # Process and display the data
             self._process_and_display_data(races_data)
@@ -308,13 +206,13 @@ class HenleySchedule():
         
         # Add YouTube link
         console.print("\n[link=https://www.youtube.com/results?search_query=Henley+royal+regatta+live]Watch Live on YouTube[/link]")
+        console.print("")
 
     def get_site_content(self) -> Optional[BeautifulSoup]:
         try:
             response = requests.get(self.url)
             response.raise_for_status()
             # Explicitly set encoding to utf-8
-            response.encoding = 'utf-8'
             return BeautifulSoup(response.content, "html.parser", from_encoding='utf-8')
         except requests.RequestException as e:
             console.print(f"[red]Error fetching race data: {e}[/red]")
@@ -344,7 +242,6 @@ class HenleySchedule():
 
     @staticmethod
     def clean_text(element: Optional[BeautifulSoup], default: str = "") -> str:
-        """Extracts and cleans text from a BeautifulSoup element with UTF-8 support."""
         if not element:
             return default
         try:
