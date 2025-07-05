@@ -6,16 +6,15 @@ This script fetches and displays the race timetable for the Henley Royal Regatta
 ## Installation
 
 ```
-python -m venv .venv
-.\.venv\Scripts\activate  # On Windows
-source .venv/bin/activate  # On macOS/Linux
-pip install . -r requirements.txt
+pip3 install uv
+uv venv
+source .venv/bin/activate # on MAC
 ```
 
 ## Usage
 
 ```
-python -m henleySchedule [--crew <search_string1> <search_string2> ...] [--gmt <offset>] [--boat <boat_type>] [--trophy <trophy_name>] [--offline] [--notify] [--save-config]
+uv run main.py [--crew <search_string1> <search_string2> ...] [--gmt <offset>] [--boat <boat_type>] [--trophy <trophy_name>] [--offline] [--notify] [--save-config]
 ```
 
 When there is no race schedule on the Henley Site, you have to wait for the next edition.
@@ -33,19 +32,19 @@ When there is no race schedule on the Henley Site, you have to wait for the next
 Example to show the schedule for Dutch Crews, crew 123 and every crew from Oxford Brookes in Houston, USA:
 
 ```
-python -m henleySchedule --crew NED 123 'Oxford brookes' --gmt -6
+uv run main.py --crew NED 123 'Oxford brookes' --gmt -6
 ```
 
 Example to filter races by boat type (Men's Eight) and save these settings:
 
 ```
-python -m henleySchedule --boat M8+ --save-config
+uv run main.py --boat M8+
 ```
 
 Example to show only Diamond Sculls races:
 
 ```
-python -m henleySchedule --trophy Diamonds
+uv run main.py --trophy Diamonds
 ```
 
 ## Features
@@ -60,21 +59,12 @@ python -m henleySchedule --trophy Diamonds
 
 ## Example Output:
 
-```
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Race Schedule for Wednesday 03 July 2024 ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-┏━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┓
-┃ Race # ┃ GB time ┃ GMT +1   ┃ Berks station                     ┃ Bucks station                       ┃ Trophy   ┃ Boat   ┃
-┡━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━┩
-│ 15     │ 09:50   │ 10:50    │ 438 Ever Green B.C., USA          │ 433 A.A.S.R. Skøll, NED            │ P. Wales │ M4x    │
-│ 17     │ 10:05   │ 11:05    │ 127 D.S.R. Laga 'B', NED          │ 161 Oxford Brookes Univ. 'B'        │ Temple   │ M8+    │
-│ 22     │ 10:35   │ 11:35    │ 348 Univ. California, Berkeley 'B'│ 328 A.R.S.R. Skadi & D.S.R. Laga, NED│ Visitors │ M4-    │
-│ 33     │ 11:40   │ 12:40    │ 119 A.S.R. Nereus 'A', NED        │ 138 G.S.R. Aegir, NED               │ Temple   │ M8+    │
-└─────────┴─────────┴──────────┴────────────────────────────────────┴────────────────────────────────────┴──────────┴────────┘
-
+![Example Output](docs/image.png)
 
 ## Rights
 
 All rights to the race schedule data are owned by the Henley Royal Regatta. The data is fetched from the official [Henley Royal Regatta Race TimeTable](https://www.hrr.co.uk/2024-competition/race-timetable/)
+
+```
+
 ```
