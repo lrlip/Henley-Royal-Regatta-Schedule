@@ -27,7 +27,7 @@ import appdirs
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/2024-competition/race-timetable/"
+HENLEY_TIMETABLE_URL = "https://www.hrr.co.uk/race-timetable/"
 VALID_GMT_OFFSETS = range(-12, 15)
 
 # Initialize Rich console with UTF-8 support
@@ -49,18 +49,12 @@ class HenleySchedule():
         self._validate_gmt_offset()
         self.url = HENLEY_TIMETABLE_URL
         self.trophy_boat_pair = self.load_trophy_boat_pair(
-            'HenleySchedule/static/trohpy_boat_pair.json')
+            'HenleySchedule/static/trohpy_boat_pair.yaml')
 
     def load_trophy_boat_pair(self, file_path: str) -> dict:
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                return json.load(file)
-        except FileNotFoundError:
-            # Look for the file in the installed package
-            package_dir = os.path.dirname(os.path.abspath(__file__))
-            alt_path = os.path.join(package_dir, 'static', 'trohpy_boat_pair.json')
-            with open(alt_path, 'r', encoding='utf-8') as file:
-                return json.load(file)
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return yaml.safe_load(file)
+         
 
 
     def show_race_schedule(self):            
@@ -110,8 +104,11 @@ class HenleySchedule():
             bucks_station = self._find_table_element(
                 race_element, 'timetable-field-bucks')
             
-            trophy_boat = self.trophy_boat_pair.get(
-                trophy_name, 'Boat Not Found')
+            # Check if the trophy_name contains any of the keys in trophy_boat_pair dictionary
+            trophy_boat = next(
+                (value for key, value in self.trophy_boat_pair.items() if key in trophy_name),
+                'Boat Not Found'
+            )
                 
             gb_time = race_time[:5]
             gb_time_upd, local_time = self._convert_time_str_to_local_time_str(gb_time)
@@ -210,13 +207,31 @@ class HenleySchedule():
 
     def get_site_content(self) -> Optional[BeautifulSoup]:
         try:
+            # Create data directory if it doesn't exist
+            data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+            os.makedirs(data_dir, exist_ok=True)
+            
             response = requests.get(self.url)
             response.raise_for_status()
+            
+            # Store the HTML content in data directory with current date
+            today = datetime.now().strftime('%Y-%m-%d')
+            html_file_path = os.path.join(data_dir, f'{today}.html')
+            
+            with open(html_file_path, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+                
+            logging.info(f"Stored HTML content in {html_file_path}")
+            
             # Explicitly set encoding to utf-8
             return BeautifulSoup(response.content, "html.parser", from_encoding='utf-8')
         except requests.RequestException as e:
             console.print(f"[red]Error fetching race data: {e}[/red]")
             return None
+        except IOError as e:
+            logging.error(f"Error saving HTML content: {e}")
+            # Continue with parsing even if saving fails
+            return BeautifulSoup(response.content, "html.parser", from_encoding='utf-8')
 
     def gmt_offset_header(self) -> str:
         if int(self.gmt_offset) > 0:

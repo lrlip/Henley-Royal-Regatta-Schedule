@@ -1,0 +1,43 @@
+# Henley Royal Regatta Trophy to Boat Class Mapping
+# Trophy is the name as it is used on Henley Royal Regatta website
+# Format: Trophy name: Boat class
+# Boat class key:
+# M = Men's, W = Women's, J = Junior
+# Number = Number of rowers
+# + = Coxed, - = Coxless
+# x = Sculling (two oars per person)
+
+# Men's Events
+Grand: M8+      # Grand Challenge Cup           - Premier Men's Eight
+Ladies: M8+     # Ladies' Challenge Plate       - Intermediate Men's Eight 
+Temple: M8+     # Temple Challenge Cup          - Student Men's Eight
+Thames: M8+     # Thames Challenge Cup          - Club Men's Eight
+P Elizabeth: JM8+ # Princess Elizabeth Cup      - Junior Men's Eight
+PE: JM8+        # - Alternative
+Stewards: M4-   # Stewards Challenge Cup        - Premier Men's Four
+Visitors: M4-   # Visitors Cup                  - Intermediate Men's Four
+Wyfold: M4-     # Wyfold Challenge Cup          - Club Men's Four
+Queen Mother: M4x  # Queen Mother Challenge Cup - Premier Men's Quadruple Sculls
+Wales: M4x      # Prince of Wales Challenge Cup - Intermediate Quadruple Sculls
+Q Mother: M4x   #  - Alternative
+Fawley: JM4x    # Fawley Challenge Cup          - Junior Men's Quadruple Sculls
+Albert: M4+     # Prince Albert Challenge Cup   - Student Men's Coxed Four
+Britannia: M4+  # Britannia Challenge Cup       - Club Men's Coxed Four
+Goblets: M2-    # Silver Goblets & Nickalls' Challenge Cup - Premier Open Men's Pair
+Doubles: M2x    # Double Sculls Challenge Cup   - Premier Men's Double Sculls
+D Sculls: M2x   # - Alternative 
+Diamonds: M1x   # Diamonds Challenge Cup        - Premier Men's Single Sculls
+
+
+# Women's Events
+Remenham: W8+   # Remenham Challenge Cup        - Premier Women's Eight
+Bridge: W8+     # Bridge Challenge Cup          - Intermediate Woman's Eight
+Island: W8+     # Island Challenge Cup          - Student Women's Eight
+Wargrave: W8+   # Wargrave Challenge Cup        - Club Women's Eight
+P Philip: JW8+  # Prince Philip Challenge Trophy - Junior Womans Eight
+Grace: W4x      # Princess Grace Challenge Cup  - Premier Womans Quad
+Jubilee: JW4x   # Diamond Jubilee Challenge Cup - Junior Women's Quad
+Town: W4-       # Town Challenge Cup            - Premier Women's Four
+Hambleden: W2-  # Hambleden Pairs Challenge Cup - Premier Women's Pair
+Stonor: W2x     # Stoner Challenge Trophy       - Premier Women's Double Sculls
+P Royal: W1x    # Princess Royal Challenge Cup  - Premier Single (Women's Single Sculls)
