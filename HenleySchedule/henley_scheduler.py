@@ -105,10 +105,7 @@ class HenleySchedule():
                 race_element, 'timetable-field-bucks')
             
             # Check if the trophy_name contains any of the keys in trophy_boat_pair dictionary
-            trophy_boat = next(
-                (value for key, value in self.trophy_boat_pair.items() if key in trophy_name),
-                'Boat Not Found'
-            )
+            trophy_boat = self._get_trophy_boat(trophy_name=trophy_name)
                 
             gb_time = race_time[:5]
             gb_time_upd, local_time = self._convert_time_str_to_local_time_str(gb_time)
@@ -125,6 +122,14 @@ class HenleySchedule():
             races.append(race)
             
         return {'races': races}
+    
+    def _get_trophy_boat(self, trophy_name: str) -> str:
+        """Retrieve the boat type from the trophy name
+        """
+        return next(
+                (value for key, value in self.trophy_boat_pair.items() if key in trophy_name),
+                'Boat Not Found'
+            )
 
     def _process_and_display_data(self, data: Dict):
         """Process and display race data with filtering"""
