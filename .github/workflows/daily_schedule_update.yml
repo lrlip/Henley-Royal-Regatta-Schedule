@@ -1,38 +1,38 @@
-name: Daily Schedule Update
+# name: Daily Schedule Update
 
-on:
-  schedule:
-    # Runs at 18:00 UTC every day
-    - cron: '0 20 * * *'
-  workflow_dispatch:  # Allows manual triggering from the Actions tab
+# on:
+#   schedule:
+#     # Runs at 18:00 UTC every day
+#     - cron: '0 20 * * *'
+#   workflow_dispatch:  # Allows manual triggering from the Actions tab
 
-jobs:
-  update-schedule:
-    runs-on: ubuntu-latest
+# jobs:
+#   update-schedule:
+#     runs-on: ubuntu-latest
     
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v3
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+#     - name: Set up Python
+#       uses: actions/setup-python@v4
+#       with:
+#         python-version: '3.10'
         
-    - name: Install dependencies
-      run: |
-        pip install uv
-        uv venv
-        source .venv/bin/activate
+#     - name: Install dependencies
+#       run: |
+#         pip install uv
+#         uv venv
+#         source .venv/bin/activate
         
-    - name: Run Henley Schedule script
-      run: |
-        uv run main.py --crew NED
+#     - name: Run Henley Schedule script
+#       run: |
+#         uv run main.py --crew NED
                 
-    - name: Commit and push if changes
-      run: |
-        git config --local user.email "github-actions@github.com"
-        git config --local user.name "GitHub Actions"
-        git add schedule_output.txt
-        git diff --quiet && git diff --staged --quiet || git commit -m "Update schedule data - $(date)"
-        git push
+#     - name: Commit and push if changes
+#       run: |
+#         git config --local user.email "github-actions@github.com"
+#         git config --local user.name "GitHub Actions"
+#         git add schedule_output.txt
+#         git diff --quiet && git diff --staged --quiet || git commit -m "Update schedule data - $(date)"
+#         git push
